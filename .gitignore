@@ -12,3 +12,10 @@ web-build/
 
 # macOS
 .DS_Store
+
+#Custom
+*.apk
+*.aad
+credentials.json
+android/
+*.keystore
