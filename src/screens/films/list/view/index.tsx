@@ -1,32 +1,71 @@
-import { StyleSheet, Text, View, Image, ImageBackground } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  FlatList,
+  Button,
+  TouchableOpacity,
+  Dimensions,
+} from "react-native";
+import { useAppDispatch } from "src/features";
 import { IMAGES_HOST } from "src/features/api";
-import { useGetMovieQuery } from "src/features/api/movies";
+import { useGetMoviesListQuery } from "src/features/api/movies";
+import { setAuth } from "src/features/store/app";
 
-export default function App() {
-  const { data, error, isLoading } = useGetMovieQuery();
+export default function App({ navigation }) {
+  const { data, isLoading } = useGetMoviesListQuery();
+  const dispatch = useAppDispatch();
 
   if (isLoading) return <View></View>;
 
   return (
-    <View style={styles.container}>
-      <ImageBackground
-        source={{
-          uri: `${IMAGES_HOST}/t/p/w200/${data?.results[0]?.poster_path}`,
-        }}
-        resizeMode="cover"
-        style={styles.imageBackground}
-        blurRadius={25}
-      >
-        <Image
-          source={{
-            uri: `${IMAGES_HOST}/t/p/w200/${data?.results[0]?.poster_path}`,
+    <FlatList
+      data={data?.results || []}
+      renderItem={({ item }) => (
+        <TouchableOpacity
+          onLongPress={() => {}}
+          activeOpacity={0.7}
+          onPress={() => {
+            navigation.navigate("MoviesDetail", { id: item.id });
           }}
-          style={styles.image}
+        >
+          <View style={styles.card}>
+            <Image
+              source={{
+                uri: `${IMAGES_HOST}/t/p/w200/${item?.poster_path}`,
+              }}
+              style={styles.image}
+            />
+            <View style={styles.content}>
+              <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">
+                {item?.title || ""}
+              </Text>
+              <Text
+                style={styles.overview}
+                numberOfLines={6}
+                ellipsizeMode="tail"
+              >
+                {item?.overview || ""}
+              </Text>
+            </View>
+          </View>
+        </TouchableOpacity>
+      )}
+      keyExtractor={(movie) => movie.id.toString()}
+      ListFooterComponent={
+        <Button
+          onPress={() => {
+            dispatch(setAuth(false));
+          }}
+          title="Выйти"
+          color="#841584"
         />
-        <Text style={styles.title}>{data?.results[0]?.title}</Text>
-        <Text style={styles.overview}>{data?.results[0]?.overview}</Text>
-      </ImageBackground>
-    </View>
+      }
+      style={{
+        marginTop: 20,
+      }}
+    />
   );
 }
 
@@ -34,25 +73,27 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  imageBackground: {
-    flex: 1,
-    padding: 20,
-    paddingTop: 70,
-  },
   image: {
-    width: 200,
-    height: 300,
+    width: 150,
+    height: 250,
     resizeMode: "cover",
     borderRadius: 20,
   },
+  card: {
+    flexDirection: "row",
+    marginBottom: 10,
+    marginHorizontal: 20,
+  },
+  content: {
+    width: Dimensions.get("window").width - 190,
+  },
   title: {
-    marginVertical: 20,
-    fontSize: 20,
-    color: "white",
+    padding: 15,
+    fontSize: 18,
     fontWeight: "900",
   },
   overview: {
-    fontSize: 16,
-    color: "white",
+    fontSize: 14,
+    paddingHorizontal: 15,
   },
 });

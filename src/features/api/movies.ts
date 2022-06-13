@@ -6,13 +6,19 @@ export const moviesApi = createApi({
   reducerPath: "moviesApi",
   baseQuery: baseQuery,
   endpoints: (builder) => ({
-    getMovie: builder.query<{ results: Movie[] }, void>({
+    getMoviesList: builder.query<{ results: Movie[] }, void>({
       query: () => ({
         url: `movie/popular`,
+        params: DEFAULT_QUERY_PARAMS,
+      }),
+    }),
+    getMovieById: builder.query<Movie, number>({
+      query: (id) => ({
+        url: `movie/${id}`,
         params: DEFAULT_QUERY_PARAMS,
       }),
     }),
   }),
 });
 
-export const { useGetMovieQuery } = moviesApi;
+export const { useGetMoviesListQuery, useGetMovieByIdQuery } = moviesApi;
